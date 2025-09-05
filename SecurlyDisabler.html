@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Securly Disabler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Securly Disabler</h1>
+        <label class="toggle-switch">
+            <input type="checkbox" id="securlyToggle" checked>
+            <span class="slider"></span>
+        </label>
+        <p>Securly is currently <span id="status">disabled</span>.</p>
+    </div>
+
+    <script>
+        document.getElementById('securlyToggle').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('status').textContent = 'disabled';
+                disableSecurly();
+            } else {
+                document.getElementById('status').textContent = 'enabled';
+                enableSecurly();
+            }
+        });
+
+        function disableSecurly() {
+            // Create a new script element to inject the content filter bypass
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.text = `
+                (function() {
+                    const originalOpen = XMLHttpRequest.prototype.open;
+                    XMLHttpRequest.prototype.open = function(method, url) {
+                        if (url.includes('securly.com')) {
+                            this.responseType = 'text';
+                        }
+                        originalOpen.apply(this, arguments);
+                    };
+
+                    const originalSend = XMLHttpRequest.prototype.send;
+                    XMLHttpRequest.prototype.send = function() {
+                        this.addEventListener('load', function() {
+                            if (this.responseURL.includes('securly.com')) {
+                                this.responseText = this.responseText.replace(/<body[^>]*>/, '<body>');
+                            }
+                        });
+                        originalSend.apply(this, arguments);
+                    };
+                })();
+            `;
+            document.head.appendChild(script);
+        }
+
+        function enableSecurly() {
+            // Remove the injected script
+            const scripts = document.head.getElementsByTagName('script');
+            for (let i = scripts.length - 1; i >= 0; i--) {
+                if (scripts[i].type === 'text/javascript' && scripts[i].text.includes('securly.com')) {
+                    scripts[i].remove();
+                }
+            }
+        }
+
+        // Initially disable Securly
+        disableSecurly();
+    </script>
+</body>
+</html>
