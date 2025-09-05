@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Securly Bypass Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 400px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .slider {
+            position: relative;
+            width: 60px;
+            height: 34px;
+            margin: 20px 0;
+        }
+        .slider input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider .track {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+        }
+        .slider .thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border: 2px solid #007BFF;
+            border-radius: 50%;
+            transition: left 0.2s;
+        }
+        .slider input:checked + .track {
+            background-color: #007BFF;
+        }
+        .slider input:checked + .track .thumb {
+            left: calc(100% - 32px);
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Securly Bypass Tool</h1>
+        <label class="slider">
+            <input type="checkbox" id="bypassSecurly">
+            <span class="track">
+                <span class="thumb"></span>
+            </span>
+        </label>
+        <p>Bypass Securly: <span id="status">Disabled</span></p>
+    </div>
+
+    <script>
+        const bypassSecurlyCheckbox = document.getElementById('bypassSecurly');
+        const statusDisplay = document.getElementById('status');
+
+        bypassSecurlyCheckbox.addEventListener('change', () => {
+            if (bypassSecurlyCheckbox.checked) {
+                statusDisplay.textContent = 'Enabled';
+                registerServiceWorker();
+            } else {
+                statusDisplay.textContent = 'Disabled';
+                unregisterServiceWorker();
+            }
+        });
+
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/serviceWorker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            }
+        }
+
+        function unregisterServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
